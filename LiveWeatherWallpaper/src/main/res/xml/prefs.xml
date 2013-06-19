@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <CheckBoxPreference android:key="touch"
-                        android:title="Enable Touch"></CheckBoxPreference>
-    <EditTextPreference android:key="numberOfCircles"
-                        android:title="Number of Circles"></EditTextPreference>
-    <EditTextPreference android:key="locationRefreshTime"
-                        android:title="Seconds between location updates"></EditTextPreference>
+    <EditTextPreference
+            android:inputType="number"
+            android:dialogMessage="Enter update frequency"
+            android:dialogTitle="update frequency"
+            android:key="locationRefreshTime"
+            android:title="Seconds between location updates" />
 </PreferenceScreen>

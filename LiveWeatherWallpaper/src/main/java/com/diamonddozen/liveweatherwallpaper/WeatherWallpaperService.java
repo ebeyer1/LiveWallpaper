@@ -3,7 +3,6 @@ package com.diamonddozen.liveweatherwallpaper;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -14,20 +13,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.service.wallpaper.WallpaperService;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.widget.Toast;
 
 import com.codefreak.weatherbugapi.LiveWeather;
 import com.codefreak.weatherbugapi.WeatherBugAPI;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Eric on 6/15/13.
  */
-public class WeatherWallpaperService extends WallpaperService implements LocationListener {
+public class WeatherWallpaperService extends WallpaperService implements LocationListener, SharedPreferences.OnSharedPreferenceChangeListener {
     @Override
     public Engine onCreateEngine() {
         // hacking in the location listener set up first
@@ -108,6 +105,13 @@ public class WeatherWallpaperService extends WallpaperService implements Locatio
 
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals("locationRefreshTime")) {
+            Toast.makeText(this.getApplicationContext(), "pref changed", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private class PrivateRetrieveWeatherByCoordsTask extends AsyncTask<Double, Void, LiveWeather>
     {
         @Override
@@ -138,10 +142,10 @@ public class WeatherWallpaperService extends WallpaperService implements Locatio
                 Toast.makeText(getApplicationContext(), weatherText, Toast.LENGTH_SHORT).show();
                 if (iteration % 2 == 0)
                 {
-                    current.drawBackground(Color.RED);
+                    current.draw(Color.RED);
                 }
                 else {
-                    current.drawBackground(Color.BLUE);
+                    current.draw(Color.BLUE);
                 }
                 iteration++;
             }
@@ -158,106 +162,17 @@ public class WeatherWallpaperService extends WallpaperService implements Locatio
         private final Runnable drawRunner = new Runnable() {
             @Override
             public void run() {
-                drawBackground(Color.BLACK);
+                draw(Color.BLACK);
             }
 
         };
-        private List<MyPoint> circles;
-        private Paint paint = new Paint();
-        private int width;
-        int height;
-        private boolean visible = true;
-        private int maxNumber = 5;
-        private boolean touchEnabled = false;
 
         public WeatherWallpaperEngine() {
-            circles = new ArrayList<MyPoint>();
-            paint.setAntiAlias(true);
-            paint.setColor(Color.WHITE);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeJoin(Paint.Join.ROUND);
-            paint.setStrokeWidth(15f);
             handler.post(drawRunner);
             current = this;
         }
 
-        @Override
-        public void onVisibilityChanged(boolean visible) {
-            this.visible = visible;
-            if (visible) {
-                handler.post(drawRunner);
-            } else {
-                handler.removeCallbacks(drawRunner);
-            }
-        }
-
-        @Override
-        public void onSurfaceDestroyed(SurfaceHolder holder) {
-            super.onSurfaceDestroyed(holder);
-            this.visible = false;
-            handler.removeCallbacks(drawRunner);
-        }
-
-        @Override
-        public void onSurfaceChanged(SurfaceHolder holder, int format,
-                                     int width, int height) {
-            this.width = width;
-            this.height = height;
-            super.onSurfaceChanged(holder, format, width, height);
-        }
-
-        @Override
-        public void onTouchEvent(MotionEvent event) {
-            if (touchEnabled) {
-                float x = event.getX();
-                float y = event.getY();
-                SurfaceHolder holder = getSurfaceHolder();
-                Canvas canvas = null;
-                try {
-                    canvas = holder.lockCanvas();
-                    if (canvas != null) {
-                        canvas.drawColor(Color.BLACK);
-                        circles.clear();
-                        circles.add(new MyPoint(
-                                String.valueOf(circles.size() + 1), x, y));
-                        drawCircles(canvas, circles);
-
-                    }
-                } finally {
-                    if (canvas != null)
-                        holder.unlockCanvasAndPost(canvas);
-                }
-                super.onTouchEvent(event);
-            }
-        }
-
-        private void draw() {
-            SurfaceHolder holder = getSurfaceHolder();
-            Canvas canvas = null;
-            try {
-                canvas = holder.lockCanvas();
-                if (canvas != null) {
-                    if (circles.size() >= maxNumber) {
-                        circles.clear();
-                    }
-                    int x = (int) (width * Math.random());
-                    int y = (int) (height * Math.random());
-                    circles.add(new MyPoint(String.valueOf(circles.size() + 1),
-                            x, y));
-                    drawCircles(canvas, circles);
-                }
-            } finally {
-                if (canvas != null)
-                    holder.unlockCanvasAndPost(canvas);
-            }
-            handler.removeCallbacks(drawRunner);
-            if (visible) {
-                handler.postDelayed(drawRunner, 5000);
-            }
-        }
-
-        public void drawBackground(int color)
-        {
+        private void draw(int color) {
             SurfaceHolder holder = getSurfaceHolder();
             Canvas canvas = null;
             try {
@@ -268,17 +183,6 @@ public class WeatherWallpaperService extends WallpaperService implements Locatio
                     holder.unlockCanvasAndPost(canvas);
             }
             handler.removeCallbacks(drawRunner);
-            if (visible) {
-                handler.postDelayed(drawRunner, 5000);
-            }
-        }
-
-        // Surface view requires that all elements are drawn completely
-        private void drawCircles(Canvas canvas, List<MyPoint> circles) {
-            canvas.drawColor(Color.BLACK);
-            for (MyPoint point : circles) {
-                canvas.drawCircle(point.x, point.y, 20.0f, paint);
-            }
         }
     }
 

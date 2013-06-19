@@ -11,8 +11,7 @@
             </meta-data>
         </service>
 
-        <activity android:exported="true" android:label="@string/app_name" android:name="com.diamonddozen.liveweatherwallpaper.WeatherPreferencesActivity" android:theme="@android:style/Theme.Light.WallpaperSettings">
-        </activity>
+        <activity android:name="com.diamonddozen.liveweatherwallpaper.WeatherPreferencesActivity"/>
         <activity android:label="@string/app_name" android:name="com.diamonddozen.liveweatherwallpaper.SetWeatherWallpaperActivity" android:theme="@android:style/Theme.Light.WallpaperSettings">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

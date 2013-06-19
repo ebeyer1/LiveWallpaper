@@ -23,12 +23,7 @@
             </meta-data>
         </service>
 
-        <activity
-                android:name=".WeatherPreferencesActivity"
-                android:exported="true"
-                android:label="@string/app_name"
-                android:theme="@android:style/Theme.Light.WallpaperSettings" >
-        </activity>
+        <activity android:name=".WeatherPreferencesActivity" />
         <activity
                 android:name=".SetWeatherWallpaperActivity"
                 android:label="@string/app_name"
